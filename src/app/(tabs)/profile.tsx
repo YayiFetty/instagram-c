@@ -8,11 +8,11 @@ export default function Profile() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("")
   const [website, setWebsite] = useState("")
-  useEffect(() => {
-    if (!image) {
-      pickImage();
-    }
-  }, [image]);
+  // useEffect(() => {
+  //   if (!image) {
+  //     pickImage();
+  //   }
+  // }, [image]);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library

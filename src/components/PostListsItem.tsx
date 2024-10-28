@@ -1,61 +1,71 @@
-// PostListsItem.js
-import { View, Text, Image } from "react-native";
+import { View, Text, useWindowDimensions, Image } from "react-native";
 import React from "react";
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 
-import { AdvancedImage } from 'cloudinary-react-native';
-import { Cloudinary } from "@cloudinary/url-gen"
+// Import Cloudinary React Native component
+import { AdvancedImage } from "cloudinary-react-native";
 
-
-// Import required actions and qualifiers.
-import { thumbnail } from "@cloudinary/url-gen/actions/resize";
+// Import required actions and qualifiers from Cloudinary
+import {  thumbnail } from "@cloudinary/url-gen/actions/resize";
 import { byRadius } from "@cloudinary/url-gen/actions/roundCorners";
-import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
+import {  focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
 import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
 
-
- // Create and configure your Cloudinary instance.
- const cld = new Cloudinary({
-  cloud: {
-      cloudName: 'demo'
-  }
-});
+// Import Cloudinary instance
+import { cld } from "../lib/cloudinary";
 
 export default function PostListsItem({ post }) {
   // Defensive check
-  if (!post?.user?.image_url) {
-    console.log('Missing post data:', post);
+  if (!post?.user?.avatar_url || !post?.image) {
+    console.log("Missing post data:", post);
     return null;
   }
 
-  const myImage = cld.image('sample');
+  const { width } = useWindowDimensions();
 
-  // Apply transformations
+  // Transform the post image
+  const image = cld.image(post.image);
+  // Apply the necessary transformation
+   image.resize(thumbnail().width(width).height(width))
+  //   .roundCorners(byRadius(20));
 
-    myImage
-        .resize(thumbnail().width(150).height(150).gravity(focusOn(FocusOn.face())))  // Crop the image, focusing on the face.
-        .roundCorners(byRadius(20));    // Round the corners.
-
+  console.log("advanceimg", image);
+  // Transform the user avatar
+  const avatar = cld.image(post.user.avatar_url);
+  avatar.resize(
+    thumbnail().width(50).height(50).gravity(focusOn(FocusOn.face()))
+  );
 
   return (
     <View className="bg-white">
       {/* User Header */}
       <View className="p-3 flex-row items-center gap-2">
-        
+        {/* Optionally, use the regular Image component */}
+
         <Image
           source={{ uri: post.user.image_url }}
           className="w-12 h-12 rounded-full"
         />
+
+        {/* Use AdvancedImage for Cloudinary Avatar */}
+        {/* <AdvancedImage cldImg={avatar} className="w-12 aspect-square rounded-full" /> */}
         <Text className="font-semibold">{post.user.username}</Text>
       </View>
 
       {/* Post Image */}
-      {/* <Image
-        source={{ uri: post.image_url }}
-        className="w-full aspect-[4/3]"
-      /> */}
+      <View>
+        {/* Optionally, use the regular Image component */}
 
-      <AdvancedImage cldImg={myImage} className="w-full aspect-[4/3]"/>
+        {/* <Image
+          source = {{ uri:post.image_url }}
+          className = "w-full aspect-[4/3]"
+        />  */}
+
+        {/* Use AdvancedImage for Cloudinary Post Image */}
+
+        <AdvancedImage cldImg={image} className="w-full aspect-[4/3]" />
+
+      </View>
 
       {/* Actions */}
       <View className="flex-row items-center p-3">
@@ -64,7 +74,8 @@ export default function PostListsItem({ post }) {
           <Ionicons name="chatbubble-outline" size={24} color="#000" />
           <Feather name="send" size={24} color="#000" />
         </View>
-        <View className="flex-1" />
+        <View className="flex-1"/>
+
         <Feather name="bookmark" size={24} color="#000"/>
       </View>
     </View>
