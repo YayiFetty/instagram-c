@@ -5,6 +5,7 @@ import PostListsItem from "@/src/components/PostListsItem";
 import posts from "assets/data/posts.json";
 import { supabase } from "@/src/lib/supabase";
 
+
 interface User {
   id: string;
   username: string | null;
@@ -38,9 +39,13 @@ export default function FeedScreen() {
       
       const { data:posts, error } = await supabase
         .from("posts")
-        .select("*, user:profiles(*)")
-        .order('created_at', { ascending: false }); // Add sorting
-      
+        .select(`
+          *,
+          user:profiles(*)
+        `)
+        .order('created_at', { ascending: false })// Add sorting
+        .returns<Post[]>(); //setting the return type
+
       if (error) {
         Alert.alert("Error", error.message);
         return;
@@ -48,7 +53,7 @@ export default function FeedScreen() {
 
       if (posts) {
         console.log("Fetched data:", JSON.stringify(posts, null, 2));
-        setPosts(posts);
+        setPosts(posts as Post[]);
       }
     } catch (err) {
       Alert.alert("Error", "Something went wrong fetching posts");
