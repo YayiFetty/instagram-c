@@ -1,8 +1,13 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { Tabs } from 'expo-router'
+import { Redirect, Tabs } from 'expo-router'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useAuth } from '@/src/providers/AuthProvider';
 export default function TabsLayout() {
+  const {isAuthenticated} = useAuth();
+  if(!isAuthenticated){
+      return <Redirect href="/(auth)"/>
+  }
   return (
   <Tabs screenOptions={{tabBarActiveTintColor:"black", }}>
     <Tabs.Screen name="index" options={{
